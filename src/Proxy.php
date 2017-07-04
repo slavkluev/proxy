@@ -27,6 +27,8 @@ class Proxy
         list($html, $convertedCSS, $images) = $this->renamePaths($html, $convertedCSS, $images);
         $path = $this->downloadDirectory . DIRECTORY_SEPARATOR . parse_url($url, PHP_URL_HOST);
         $this->save($html, $convertedCSS, $images, $path);
+
+        return $path;
     }
 
     public function downloadHTML($url)
