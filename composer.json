@@ -1,0 +1,23 @@
+{
+  "name": "slavkluev/proxy",
+  "authors": [
+    {
+      "name": "Viacheslav Kliuev",
+      "email": "slavkluev@yandex.ru"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Proxy\\": "src/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.2",
+    "codeclimate/php-test-reporter": "dev-master",
+    "squizlabs/php_codesniffer": "2.*",
+    "php-vfs/php-vfs": "*@stable"
+  },
+  "require": {
+    "sabberworm/php-css-parser": "^8.1"
+  }
+}
