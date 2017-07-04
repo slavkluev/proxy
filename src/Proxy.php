@@ -6,6 +6,7 @@ use DOMDocument;
 use Sabberworm\CSS\Parser;
 use Sabberworm\CSS\Value\CSSString;
 use Sabberworm\CSS\Value\URL;
+use webignition\AbsoluteUrlDeriver\AbsoluteUrlDeriver;
 
 class Proxy
 {
@@ -21,7 +22,7 @@ class Proxy
 
         $convertedCSS = [];
         foreach ($css as $link => $data) {
-            $convertedCSS[] = $this->convertCSSImages($data, $this->absoluteUrl($link, $url));
+            $convertedCSS[$link] = $this->convertCSSImages($data, $this->absoluteUrl($link, $url));
         }
 
         list($html, $convertedCSS, $images) = $this->renamePaths($html, $convertedCSS, $images);
@@ -145,28 +146,8 @@ class Proxy
 
     public function absoluteUrl($relativeUrl, $baseUrl)
     {
-        $relativeParsed = parse_url($relativeUrl);
-        $baseParsed = parse_url($baseUrl);
-        if (!empty($relativeParsed['scheme'])) {
-            return $relativeUrl;
-        }
-
-        if (!empty($relativeParsed['host'])) {
-            $baseParsed['host'] = $relativeParsed['host'];
-        }
-
-        if ($relativeParsed['path'][0] != '/') {
-            $base = mb_strrchr($baseParsed['path'], '/', true, 'UTF-8');
-            if ($base === false) {
-                $base = '';
-            }
-            $relativeParsed['path'] = $base . '/' . $relativeParsed['path'];
-        }
-        $baseParsed['path'] = $relativeParsed['path'];
-
-        return (isset($baseParsed['scheme']) ? "{$baseParsed['scheme']}:" : '') .
-            (isset($baseParsed['host']) ? "//{$baseParsed['host']}" : '') .
-            (isset($baseParsed['port']) ? ":{$baseParsed['port']}" : '') .
-            (isset($baseParsed['path']) ? "{$baseParsed['path']}" : '');
+        $deriver = new AbsoluteUrlDeriver($relativeUrl, $baseUrl);
+        $absoluteUrl = (string)$deriver->getAbsoluteUrl();
+        return $absoluteUrl;
     }
 }

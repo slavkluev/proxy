@@ -56,11 +56,11 @@ class ProxyTest extends TestCase
     {
         $relativeUrl = '../test.img';
         $baseUrl = 'http://test.com/test/test.php';
-        $this->assertEquals('http://test.com/test/../test.img', $this->proxy->absoluteUrl($relativeUrl, $baseUrl));
+        $this->assertEquals('http://test.com/test.img', $this->proxy->absoluteUrl($relativeUrl, $baseUrl));
 
         $relativeUrl = '../test.img';
         $baseUrl = 'http://test.com/test/';
-        $this->assertEquals('http://test.com/test/../test.img', $this->proxy->absoluteUrl($relativeUrl, $baseUrl));
+        $this->assertEquals('http://test.com/test.img', $this->proxy->absoluteUrl($relativeUrl, $baseUrl));
 
         $relativeUrl = '/test.img';
         $baseUrl = 'http://test.com/test/test2/';
