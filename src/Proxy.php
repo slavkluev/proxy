@@ -141,27 +141,27 @@ class Proxy
 
     public function absoluteUrl($relativeUrl, $baseUrl)
     {
-        $r = parse_url($relativeUrl);
-        $b = parse_url($baseUrl);
-        if (!empty($r['scheme'])) {
+        $relativeParsed = parse_url($relativeUrl);
+        $baseParsed = parse_url($baseUrl);
+        if (!empty($relativeParsed['scheme'])) {
             return $relativeUrl;
         }
 
-        if (!empty($r['host'])) {
-            $b['host'] = $r['host'];
+        if (!empty($relativeParsed['host'])) {
+            $baseParsed['host'] = $relativeParsed['host'];
         }
 
-        if ($r['path'][0] != '/') {
-            $base = mb_strrchr($b['path'], '/', true, 'UTF-8');
+        if ($relativeParsed['path'][0] != '/') {
+            $base = mb_strrchr($baseParsed['path'], '/', true, 'UTF-8');
             if ($base === false)
                 $base = '';
-            $r['path'] = $base . '/' . $r['path'];
+            $relativeParsed['path'] = $base . '/' . $relativeParsed['path'];
         }
-        $b['path'] = $r['path'];
+        $baseParsed['path'] = $relativeParsed['path'];
 
-        return (isset($b['scheme']) ? "{$b['scheme']}:" : '') .
-            (isset($b['host']) ? "//{$b['host']}" : '') .
-            (isset($b['port']) ? ":{$b['port']}" : '') .
-            (isset($b['path']) ? "{$b['path']}" : '');
+        return (isset($baseParsed['scheme']) ? "{$baseParsed['scheme']}:" : '') .
+            (isset($baseParsed['host']) ? "//{$baseParsed['host']}" : '') .
+            (isset($baseParsed['port']) ? ":{$baseParsed['port']}" : '') .
+            (isset($baseParsed['path']) ? "{$baseParsed['path']}" : '');
     }
 }
