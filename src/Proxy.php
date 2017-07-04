@@ -27,7 +27,7 @@ class Proxy
         list($html, $convertedCSS, $images) = $this->renamePaths($html, $convertedCSS, $images);
 
         $path = $this->downloadDirectory . DIRECTORY_SEPARATOR . parse_url($url, PHP_URL_HOST);
-        $this->save($html, $convertedCSS, $images,$path);
+        $this->save($html, $convertedCSS, $images, $path);
     }
 
     public function downloadHTML($url)
@@ -41,7 +41,7 @@ class Proxy
         $css = [];
         $xml = new DOMDocument;
         @$xml->loadHTML($this->downloadHTML($url));
-        foreach($xml->getElementsByTagName('link') as $link) {
+        foreach ($xml->getElementsByTagName('link') as $link) {
             if ($link->getAttribute('rel') == 'stylesheet') {
                 $href = $link->getAttribute('href');
                 $css[$href] = file_get_contents($this->absoluteUrl($href, $url));
@@ -66,7 +66,7 @@ class Proxy
     {
         $xml = new DOMDocument;
         @$xml->loadHTML($html);
-        foreach($xml->getElementsByTagName('a') as $link) {
+        foreach ($xml->getElementsByTagName('a') as $link) {
             $link->setAttribute('href', '#');
         }
         $html = $xml->saveHTML();
@@ -78,8 +78,8 @@ class Proxy
         $parser = new Parser($css);
         $document = $parser->parse();
         $types = ['jpg', 'png', 'gif'];
-        foreach($document->getAllValues() as $value) {
-            if($value instanceof URL) {
+        foreach ($document->getAllValues() as $value) {
+            if ($value instanceof URL) {
                 $absoluteUrl = $this->absoluteUrl($value->getURL()->getString(), $baseUrl);
                 $type = pathinfo($absoluteUrl, PATHINFO_EXTENSION);
                 if (in_array($type, $types)) {
@@ -115,18 +115,21 @@ class Proxy
     private function save($html, $css, $images, $path)
     {
         $makeDirectory = function ($path) {
-            if (!is_dir($path))
+            if (!is_dir($path)) {
                 mkdir($path);
+            }
         };
         $makeDirectory($path);
         $makeDirectory($path . DIRECTORY_SEPARATOR . 'css');
         $makeDirectory($path . DIRECTORY_SEPARATOR . 'img');
 
         file_put_contents($path . DIRECTORY_SEPARATOR . 'index.html', $html);
-        foreach ($css as $relativePath => $data)
+        foreach ($css as $relativePath => $data) {
             file_put_contents($path . DIRECTORY_SEPARATOR . $relativePath, $data);
-        foreach ($images as $relativePath => $data)
+        }
+        foreach ($images as $relativePath => $data) {
             file_put_contents($path . DIRECTORY_SEPARATOR . $relativePath, $data);
+        }
     }
 
     public function getDownloadDirectory()
@@ -153,8 +156,9 @@ class Proxy
 
         if ($relativeParsed['path'][0] != '/') {
             $base = mb_strrchr($baseParsed['path'], '/', true, 'UTF-8');
-            if ($base === false)
+            if ($base === false) {
                 $base = '';
+            }
             $relativeParsed['path'] = $base . '/' . $relativeParsed['path'];
         }
         $baseParsed['path'] = $relativeParsed['path'];
