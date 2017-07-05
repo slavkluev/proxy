@@ -40,16 +40,17 @@ class ProxyTest extends TestCase
 
     public function testBlockLinks()
     {
-        $htmlWithLinks = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'withLinks.html');
-        $htmlBlockLinks = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'blockLinks.html');
+        $htmlWithLinks = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'withLinks.html']));
+        $htmlBlockLinks = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'blockLinks.html']));
         $this->assertEquals($htmlBlockLinks, $this->proxy->blockLinks($htmlWithLinks));
     }
 
     public function testConvertCSSImages()
     {
-        $css = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'css.css');
-        $convertedCss = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'converted.css');
-        $this->assertEquals($convertedCss, $this->proxy->convertCSSImages($css, __DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'css.css'));
+        $basePath = implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'css', 'css.css']);
+        $css = file_get_contents($basePath);
+        $convertedCss = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'css', 'converted.css']));
+        $this->assertEquals($convertedCss, $this->proxy->convertCSSImages($css, $basePath));
     }
 
     public function testAbsoluteUrl()
