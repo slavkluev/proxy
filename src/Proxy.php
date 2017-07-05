@@ -34,7 +34,7 @@ class Proxy
 
     public function downloadHTML($url)
     {
-        $html = file_get_contents($url);
+        $html = $this->download($url);
         return $html;
     }
 
@@ -46,7 +46,7 @@ class Proxy
         foreach ($xml->getElementsByTagName('link') as $link) {
             if ($link->getAttribute('rel') == 'stylesheet') {
                 $href = $link->getAttribute('href');
-                $css[$href] = file_get_contents($this->absoluteUrl($href, $url));
+                $css[$href] = $this->download($this->absoluteUrl($href, $url));
             }
         }
         return $css;
@@ -59,7 +59,7 @@ class Proxy
         @$dom->loadHTML($this->downloadHTML($url));
         foreach ($dom->getElementsByTagName('img') as $image) {
             $src = $image->getAttribute('src');
-            $images[$src] = file_get_contents($this->absoluteUrl($src, $url));
+            $images[$src] = $this->download($this->absoluteUrl($src, $url));
         }
         return $images;
     }
@@ -85,7 +85,7 @@ class Proxy
                 $absoluteUrl = $this->absoluteUrl($value->getURL()->getString(), $baseUrl);
                 $type = pathinfo($absoluteUrl, PATHINFO_EXTENSION);
                 if (in_array($type, $types)) {
-                    $data = file_get_contents($absoluteUrl);
+                    $data = $this->download($absoluteUrl);
                     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                     $value->setURL(new CSSString($base64));
                 }
@@ -114,6 +114,13 @@ class Proxy
         return [$html, $newCSS, $newImages];
     }
 
+    public function absoluteUrl($relativeUrl, $baseUrl)
+    {
+        $deriver = new AbsoluteUrlDeriver($relativeUrl, $baseUrl);
+        $absoluteUrl = (string)$deriver->getAbsoluteUrl();
+        return $absoluteUrl;
+    }
+
     private function save($html, $css, $images, $path)
     {
         $makeDirectory = function ($path) {
@@ -134,6 +141,12 @@ class Proxy
         }
     }
 
+    private function download($url)
+    {
+        $result = file_get_contents($url);
+        return $result;
+    }
+
     public function getDownloadDirectory()
     {
         return $this->downloadDirectory;
@@ -142,12 +155,5 @@ class Proxy
     public function setDownloadDirectory($dir)
     {
         $this->downloadDirectory = $dir;
-    }
-
-    public function absoluteUrl($relativeUrl, $baseUrl)
-    {
-        $deriver = new AbsoluteUrlDeriver($relativeUrl, $baseUrl);
-        $absoluteUrl = (string)$deriver->getAbsoluteUrl();
-        return $absoluteUrl;
     }
 }
