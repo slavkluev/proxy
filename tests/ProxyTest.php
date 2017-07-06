@@ -22,20 +22,7 @@ class ProxyTest extends TestCase
         $proxy = new Proxy();
         $proxy->setDownloadDirectory($fs->path('/'));
         $proxy->proxifySite($url);
-        $this->assertDirectoryExists($fs->path('/' . parse_url($url, PHP_URL_HOST)));
-        $this->assertFileExists($fs->path('/' . parse_url($url, PHP_URL_HOST)) . '/index.html');
-    }
-
-    public function testDownloadCSS()
-    {
-        $url = 'https://google.com';
-        $this->assertNotNull($this->proxy->downloadCSS($url));
-    }
-
-    public function testDownloadImages()
-    {
-        $url = 'https://google.com';
-        $this->assertNotNull($this->proxy->downloadImages($url));
+        $this->assertFileExists($fs->path('/' . parse_url($url, PHP_URL_HOST) . '.html'));
     }
 
     public function testBlockLinks()
@@ -43,14 +30,6 @@ class ProxyTest extends TestCase
         $htmlWithLinks = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'withLinks.html']));
         $htmlBlockLinks = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'blockLinks.html']));
         $this->assertEquals($htmlBlockLinks, $this->proxy->blockLinks($htmlWithLinks));
-    }
-
-    public function testConvertCSSImages()
-    {
-        $basePath = implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'css', 'css.css']);
-        $css = file_get_contents($basePath);
-        $convertedCss = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'css', 'converted.css']));
-        $this->assertEquals($convertedCss, $this->proxy->convertCSSImages($css, $basePath));
     }
 
     public function testAbsoluteUrl()

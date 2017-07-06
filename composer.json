@@ -18,7 +18,6 @@
     "php-vfs/php-vfs": "*@stable"
   },
   "require": {
-    "sabberworm/php-css-parser": "^8.1",
     "webignition/absolute-url-deriver": "^1.5"
   }
 }
