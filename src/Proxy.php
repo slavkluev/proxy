@@ -66,28 +66,14 @@ class Proxy
 
     public function convertFiles($text, $baseUrl)
     {
-        $tags = ['link', 'script', 'img', 'meta'];
-        $attributes = ['src', 'href', 'content'];
-        $types = ['jpe?g', 'gif', 'png', 'svg', 'eot', 'woff2?', 'ttf', 'ico'];
-        $text = preg_replace_callback(
-            "~((?:url\(|<(?:"
-            . implode('|', $tags)
-            . ")[^>]+(?:"
-            . implode('|', $attributes)
-            . ")\s*=\s*)(?!['\"]?(?:data))['\"]?)([^'\"\)\s>]+(?:"
-            . implode('|', $types)
-            . "))~",
-            function ($matches) use ($baseUrl) {
-                try {
-                    $data = $this->download($this->absoluteUrl($matches[2], $baseUrl));
-                } catch (DownloadException $e) {
-                    $data = $this->absoluteUrl($matches[2], $baseUrl);
-                }
-                return $matches[1] . $this->convertFileToBase64($data);
-            },
-            $text
-        );
-        return $text;
+        $textWithAbsoluteUrls = $this->replaceRelativeUrlsToAbsolute($text, $baseUrl);
+        $urls = $this->getFileUrls($textWithAbsoluteUrls);
+        $files = $this->download($urls);
+        foreach ($urls as $url) {
+            $convertedFile = $this->convertFileToBase64($files[$url]);
+            $textWithAbsoluteUrls = str_replace($url, $convertedFile, $textWithAbsoluteUrls);
+        }
+        return $textWithAbsoluteUrls;
     }
 
     public function convertFileToBase64($data)
