@@ -101,6 +101,11 @@ class Proxy
 
     public function replaceRelativeUrlsToAbsolute($text, $baseUrl)
     {
+        preg_match('/<base[^>]+href\s*=\s*[\'"]?([^\'"\)\s>]+)/', $text, $matches);
+        if (!empty($matches[1])) {
+            $baseUrl = $matches[1];
+        }
+
         $urls = $this->getFileUrls($text);
         $absoluteUrls = array_map(function ($url) use ($baseUrl) {
             return $this->absoluteUrl($url, $baseUrl);
