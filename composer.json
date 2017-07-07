@@ -18,6 +18,7 @@
     "php-vfs/php-vfs": "*@stable"
   },
   "require": {
-    "webignition/absolute-url-deriver": "^1.5"
+    "webignition/absolute-url-deriver": "^1.5",
+    "khr/php-mcurl-client": "^3.1"
   }
 }

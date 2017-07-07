@@ -4,6 +4,7 @@ namespace Proxy;
 
 use DOMDocument;
 use finfo;
+use MCurl\Client;
 use Proxy\Exceptions\DownloadException;
 use webignition\AbsoluteUrlDeriver\AbsoluteUrlDeriver;
 
@@ -142,11 +143,19 @@ class Proxy
         return $filename;
     }
 
-    private function download($url)
+    private function download($urls)
     {
+        $client = new Client();
+        $clearResults = [];
         try {
-            $result = file_get_contents($url);
-            return $result;
+            $results = $client->get($urls);
+            if (!is_array($urls)) {
+                return $results;
+            }
+            foreach ($results as $result) {
+                $clearResults[$result->getInfo()['url']] = $result->getBody();
+            }
+            return $clearResults;
         } catch (\Exception $e) {
             throw new DownloadException();
         }
