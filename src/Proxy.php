@@ -138,7 +138,7 @@ class Proxy
     public function absoluteUrl($relativeUrl, $baseUrl)
     {
         $deriver = new AbsoluteUrlDeriver($relativeUrl, $baseUrl);
-        $absoluteUrl = (string)$deriver->getAbsoluteUrl();
+        $absoluteUrl = urldecode((string)$deriver->getAbsoluteUrl());
         return $absoluteUrl;
     }
 
