@@ -39,6 +39,20 @@ class ProxyTest extends TestCase
         $this->assertEquals($convertedImage, $this->proxy->convertFileToBase64($image));
     }
 
+    public function testReplaceRelativeUrlsToAbsolute()
+    {
+        $css = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'css', 'css.css']));
+        $replacedCss = $this->proxy->replaceRelativeUrlsToAbsolute($css, 'https://www.google.com/abc');
+        $this->assertContains('https://www.google.com/img/1.png', $replacedCss);
+    }
+
+    public function testGetFileUrls()
+    {
+        $css = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'css', 'css.css']));
+        $fileUrls = $this->proxy->getFileUrls($css);
+        $this->assertEquals(['../img/1.png'], $fileUrls);
+    }
+
     public function testAbsoluteUrl()
     {
         $relativeUrl = '../test.img';
