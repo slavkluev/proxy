@@ -181,7 +181,7 @@ class Proxy
             throw new DirectoryNotFoundException();
         }
         foreach (new DirectoryIterator($this->downloadDirectory) as $fileInfo) {
-            if($fileInfo->isFile() && (time() - filectime($fileInfo->getRealPath())) > $this->cleaningPeriod) {
+            if ($fileInfo->isFile() && (time() - filectime($fileInfo->getRealPath())) > $this->cleaningPeriod) {
                 unlink($fileInfo->getRealPath());
             }
         }
