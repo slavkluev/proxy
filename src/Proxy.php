@@ -2,18 +2,23 @@
 
 namespace Proxy;
 
+use DirectoryIterator;
 use DOMDocument;
 use finfo;
 use MCurl\Client;
+use Proxy\Exceptions\DirectoryNotFoundException;
 use Proxy\Exceptions\DownloadException;
 use webignition\AbsoluteUrlDeriver\AbsoluteUrlDeriver;
 
 class Proxy
 {
     private $downloadDirectory = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'sites';
+    private $cleaningPeriod = 86400;
 
     public function proxifySite($url)
     {
+        $this->clean();
+
         $html = $this->downloadHTML($url);
         $html = $this->insertCSSInHtml($html, $url);
         $html = $this->convertFiles($html, $url);
@@ -144,6 +149,9 @@ class Proxy
 
     private function save($html, $url)
     {
+        if (!is_dir($this->downloadDirectory)) {
+            throw new DirectoryNotFoundException();
+        }
         $filename = parse_url($url, PHP_URL_HOST) . '.html';
         file_put_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename, $html);
         return $filename;
@@ -167,6 +175,18 @@ class Proxy
         }
     }
 
+    private function clean()
+    {
+        if (!is_dir($this->downloadDirectory)) {
+            throw new DirectoryNotFoundException();
+        }
+        foreach (new DirectoryIterator($this->downloadDirectory) as $fileInfo) {
+            if($fileInfo->isFile() && (time() - filectime($fileInfo->getRealPath())) > $this->cleaningPeriod) {
+                unlink($fileInfo->getRealPath());
+            }
+        }
+    }
+
     public function getDownloadDirectory()
     {
         return $this->downloadDirectory;
@@ -174,6 +194,18 @@ class Proxy
 
     public function setDownloadDirectory($dir)
     {
+        if (!is_dir($dir)) {
+            throw new DirectoryNotFoundException();
+        }
         $this->downloadDirectory = $dir;
+    }
+    public function getCleaningPeriod()
+    {
+        return $this->cleaningPeriod;
+    }
+
+    public function setCleaningPeriod($timestamp)
+    {
+        $this->cleaningPeriod = $timestamp;
     }
 }
