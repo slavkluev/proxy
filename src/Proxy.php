@@ -14,7 +14,7 @@ class Proxy
     public function proxifySite($url)
     {
         $html = $this->downloadHTML($url);
-        $html = $this->insertConvertedCSSInHtml($html, $url);
+        $html = $this->insertCSSInHtml($html, $url);
         $html = $this->convertFiles($html, $url);
         $html = $this->blockLinks($html);
 
@@ -29,7 +29,7 @@ class Proxy
         return $html;
     }
 
-    public function insertConvertedCSSInHtml($html, $baseUrl)
+    public function insertCSSInHtml($html, $baseUrl)
     {
         $xml = new DOMDocument;
         @$xml->loadHTML($html);
@@ -39,8 +39,8 @@ class Proxy
                 $nodesToRemove[] = $link;
                 $href = $link->getAttribute('href');
                 $css = $this->download($this->absoluteUrl($href, $baseUrl));
-                $convertedCss = $this->convertFiles($css, $this->absoluteUrl($href, $baseUrl));
-                $node = $xml->createElement("style", $convertedCss);
+                $css = $this->replaceRelativeUrlsToAbsolute($css, $this->absoluteUrl($href, $baseUrl));
+                $node = $xml->createElement("style", $css);
                 $node->setAttribute("type", "text/css");
                 $link->parentNode->appendChild($node);
             }
