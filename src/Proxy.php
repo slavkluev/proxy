@@ -97,6 +97,27 @@ class Proxy
         return $base64;
     }
 
+    public function getFileUrls($text)
+    {
+        $tags = ['link', 'script', 'img', 'meta'];
+        $attributes = ['src', 'href', 'content'];
+        $types = ['jpe?g', 'gif', 'png', 'svg', 'eot', 'woff2?', 'ttf', 'ico'];
+        preg_match_all(
+            "~((?:url\(|<(?:"
+            . implode('|', $tags)
+            . ")[^>]+(?:"
+            . implode('|', $attributes)
+            . ")\s*=\s*)(?!['\"]?(?:data))['\"]?)([^'\"\)\s>]+\.(?:"
+            . implode('|', $types)
+            . "))~",
+            $text,
+            $matches,
+            PREG_PATTERN_ORDER
+        );
+        $urls = array_unique($matches[2]);
+        return $urls;
+    }
+
     public function absoluteUrl($relativeUrl, $baseUrl)
     {
         $deriver = new AbsoluteUrlDeriver($relativeUrl, $baseUrl);

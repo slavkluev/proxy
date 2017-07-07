@@ -17,7 +17,7 @@ class ProxyTest extends TestCase
 
     public function testProxifySite()
     {
-        $url = 'https://google.com';
+        $url = 'https://github.com';
         $fs = new FileSystem();
         $proxy = new Proxy();
         $proxy->setDownloadDirectory($fs->path('/'));
