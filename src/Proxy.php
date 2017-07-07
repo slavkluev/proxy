@@ -97,6 +97,16 @@ class Proxy
         return $base64;
     }
 
+    public function replaceRelativeUrlsToAbsolute($text, $baseUrl)
+    {
+        $urls = $this->getFileUrls($text);
+        $absoluteUrls = array_map(function ($url) use ($baseUrl) {
+            return $this->absoluteUrl($url, $baseUrl);
+        }, $urls);
+        $replacedText = str_replace($urls, $absoluteUrls, $text);
+        return $replacedText;
+    }
+
     public function getFileUrls($text)
     {
         $tags = ['link', 'script', 'img', 'meta'];
