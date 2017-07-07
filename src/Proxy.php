@@ -18,6 +18,7 @@ class Proxy
         $html = $this->insertCSSInHtml($html, $url);
         $html = $this->convertFiles($html, $url);
         $html = $this->blockLinks($html);
+        $html = $this->replaceJSRelativeUrls($html, $url);
 
         $filename = $this->save($html, $url);
 
@@ -48,6 +49,20 @@ class Proxy
         }
         foreach ($nodesToRemove as $domElement) {
             $domElement->parentNode->removeChild($domElement);
+        }
+        $html = $xml->saveHTML();
+        return $html;
+    }
+
+    public function replaceJSRelativeUrls($html, $baseUrl)
+    {
+        $xml = new DOMDocument;
+        @$xml->loadHTML($html);
+        foreach ($xml->getElementsByTagName('script') as $script) {
+            if ($script->hasAttribute('src')) {
+                $src = $script->getAttribute('src');
+                $script->setAttribute('src', $this->absoluteUrl($src, $baseUrl));
+            }
         }
         $html = $xml->saveHTML();
         return $html;
