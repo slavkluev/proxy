@@ -29,7 +29,7 @@ class Proxy
         return $html;
     }
 
-    public function insertConvertedCSSInHtml($html, $url)
+    public function insertConvertedCSSInHtml($html, $baseUrl)
     {
         $xml = new DOMDocument;
         @$xml->loadHTML($html);
@@ -38,8 +38,8 @@ class Proxy
             if ($link->getAttribute('rel') == 'stylesheet') {
                 $nodesToRemove[] = $link;
                 $href = $link->getAttribute('href');
-                $css = $this->download($this->absoluteUrl($href, $url));
-                $convertedCss = $this->convertFiles($css, $this->absoluteUrl($href, $url));
+                $css = $this->download($this->absoluteUrl($href, $baseUrl));
+                $convertedCss = $this->convertFiles($css, $this->absoluteUrl($href, $baseUrl));
                 $node = $xml->createElement("style", $convertedCss);
                 $node->setAttribute("type", "text/css");
                 $link->parentNode->appendChild($node);
@@ -65,26 +65,32 @@ class Proxy
 
     public function convertFiles($text, $baseUrl)
     {
+        $tags = ['link', 'script', 'img', 'meta'];
+        $attributes = ['src', 'href', 'content'];
         $types = ['jpe?g', 'gif', 'png', 'svg', 'eot', 'woff2?', 'ttf', 'ico'];
         $text = preg_replace_callback(
-            "~((?:url\(|<(?:link|script|img|meta)[^>]+(?:src|href|content)\s*=\s*)(?!['\"]?(?:data))['\"]?)([^'\"\)\s>]+(?:"
+            "~((?:url\(|<(?:"
+            . implode('|', $tags)
+            . ")[^>]+(?:"
+            . implode('|', $attributes)
+            . ")\s*=\s*)(?!['\"]?(?:data))['\"]?)([^'\"\)\s>]+(?:"
             . implode('|', $types)
             . "))~",
             function ($matches) use ($baseUrl) {
-                return $matches[1] . $this->convertFileToBase64($this->absoluteUrl($matches[2], $baseUrl));
+                try {
+                    $data = $this->download($this->absoluteUrl($matches[2], $baseUrl));
+                } catch (DownloadException $e) {
+                    $data = $this->absoluteUrl($matches[2], $baseUrl);
+                }
+                return $matches[1] . $this->convertFileToBase64($data);
             },
             $text
         );
         return $text;
     }
 
-    public function convertFileToBase64($url)
+    public function convertFileToBase64($data)
     {
-        try {
-            $data = $this->download($url);
-        } catch (DownloadException $e) {
-            return $url;
-        }
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->buffer($data);
         $base64 = 'data:' . $mime . ';base64,' . base64_encode($data);
