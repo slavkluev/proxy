@@ -19,13 +19,18 @@ class Proxy
     {
         $this->clean();
 
+        $filename = md5($url) . '.html';
+        if (is_file($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename)) {
+            return $filename;
+        }
+
         $html = $this->downloadHTML($url);
         $html = $this->insertCSSInHtml($html, $url);
         $html = $this->convertFiles($html, $url);
         $html = $this->blockLinks($html);
         $html = $this->replaceJSRelativeUrls($html, $url);
 
-        $filename = $this->save($html, $url);
+        $this->save($html, $filename);
 
         return $filename;
     }
@@ -147,14 +152,12 @@ class Proxy
         return $absoluteUrl;
     }
 
-    private function save($html, $url)
+    private function save($html, $filename)
     {
         if (!is_dir($this->downloadDirectory)) {
             throw new DirectoryNotFoundException();
         }
-        $filename = parse_url($url, PHP_URL_HOST) . '.html';
         file_put_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename, $html);
-        return $filename;
     }
 
     private function download($urls)

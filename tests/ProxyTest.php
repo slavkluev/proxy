@@ -17,12 +17,12 @@ class ProxyTest extends TestCase
 
     public function testProxifySite()
     {
-        $url = 'https://www.google.com';
+        $url = 'https://google.com';
         $fs = new FileSystem();
         $proxy = new Proxy();
         $proxy->setDownloadDirectory($fs->path('/'));
         $proxy->proxifySite($url);
-        $this->assertFileExists($fs->path('/' . parse_url($url, PHP_URL_HOST) . '.html'));
+        $this->assertFileExists($fs->path('/' . md5($url) . '.html'));
     }
 
     public function testBlockLinks()
