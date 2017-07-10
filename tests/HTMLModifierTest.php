@@ -22,4 +22,11 @@ class HTMLModifierTest extends TestCase
         $htmlWithInsertedJS = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'insertedJS.html']));
         $this->assertEquals($htmlWithInsertedJS, $htmlModifier->insertJS('test.js')->html());
     }
+
+    public function testDeleteBaseTag()
+    {
+        $htmlWithBase = '<html><base href="http://test.com"></html>';
+        $htmlModifier = new HTMLModifier($htmlWithBase);
+        $this->assertNotContains('base', $htmlModifier->deleteBaseTag()->html());
+    }
 }
