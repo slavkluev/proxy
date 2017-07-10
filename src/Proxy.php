@@ -77,8 +77,8 @@ class Proxy
         $urls = $this->getFileUrls($textWithAbsoluteUrls);
         $files = $this->download($urls);
         foreach ($files as $file) {
-            $convertedFile = $this->convertFileToBase64($file->getBody(), $file->getParams()['content_type']);
-            $textWithAbsoluteUrls = str_replace($file->getParams()['url'], $convertedFile, $textWithAbsoluteUrls);
+            $convertedFile = $this->convertFileToBase64($file->getBody(), $file->getInfo()['content_type']);
+            $textWithAbsoluteUrls = str_replace($file->getInfo()['url'], $convertedFile, $textWithAbsoluteUrls);
         }
         return $textWithAbsoluteUrls;
     }
