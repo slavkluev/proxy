@@ -37,8 +37,11 @@ class HTMLModifier
     public function deleteBaseTag()
     {
         $dom = $this->getDocument();
-        $base = $dom->getElementsByTagName('base')->item(0);
-        $base->parentNode->removeChild($base);
+        $bases = $dom->getElementsByTagName('base');
+        if ($bases->length > 0) {
+            $base = $bases->item(0);
+            $base->parentNode->removeChild($base);
+        }
         $this->html = $dom->saveHTML();
         return $this;
     }
