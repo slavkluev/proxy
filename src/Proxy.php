@@ -24,21 +24,14 @@ class Proxy
             return file_get_contents($filename);
         }
 
-        $html = $this->downloadHTML($url);
+        $html = $this->download($url);
         $html = $this->insertCSSIntoHtml($html, $url);
         $html = $this->convertFiles($html, $url);
-        $html = $this->blockLinks($html);
         $html = $this->replaceJSRelativeUrls($html, $url);
 
         $this->save($html, $filename);
 
         return file_get_contents($filename);
-    }
-
-    public function downloadHTML($url)
-    {
-        $html = $this->download($url);
-        return $html;
     }
 
     public function insertCSSIntoHtml($html, $baseUrl)
@@ -75,29 +68,6 @@ class Proxy
             }
         }
         $html = $xml->saveHTML();
-        return $html;
-    }
-
-    public function blockLinks($html)
-    {
-        $xml = new DOMDocument;
-        @$xml->loadHTML($html);
-        foreach ($xml->getElementsByTagName('a') as $link) {
-            $link->setAttribute('href', '#');
-        }
-        $html = $xml->saveHTML();
-        return $html;
-    }
-
-    public function insertJS($html, $src)
-    {
-        $dom = new DOMDocument;
-        @$dom->loadHTML($html);
-        $body = $dom->getElementsByTagName('body')->item(0);
-        $node = $dom->createElement("script");
-        $node->setAttribute("src", $src);
-        $body->appendChild($node);
-        $html = $dom->saveHTML();
         return $html;
     }
 
