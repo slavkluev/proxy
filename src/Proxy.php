@@ -183,6 +183,7 @@ class Proxy
             throw new DirectoryNotFoundException();
         }
         $this->downloadDirectory = $dir;
+        return $this;
     }
 
     public function getCleaningPeriod()
@@ -193,5 +194,6 @@ class Proxy
     public function setCleaningPeriod($timestamp)
     {
         $this->cleaningPeriod = $timestamp;
+        return $this;
     }
 }
