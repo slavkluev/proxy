@@ -24,7 +24,7 @@ class Proxy
             return file_get_contents($filename);
         }
 
-        $html = $this->download($url);
+        $html = $this->download($url)->getBody();
         $html = $this->insertCSSIntoHtml($html, $url);
         $html = $this->convertFiles($html, $url);
         $html = $this->replaceJSRelativeUrls($html, $url);
@@ -43,7 +43,7 @@ class Proxy
             if ($link->getAttribute('rel') == 'stylesheet') {
                 $nodesToRemove[] = $link;
                 $href = $link->getAttribute('href');
-                $css = $this->download($this->absoluteUrl($href, $baseUrl));
+                $css = $this->download($this->absoluteUrl($href, $baseUrl))->getBody();
                 $css = $this->replaceRelativeUrlsToAbsolute($css, $this->absoluteUrl($href, $baseUrl));
                 $node = $xml->createElement("style", $css);
                 $node->setAttribute("type", "text/css");
@@ -76,17 +76,17 @@ class Proxy
         $textWithAbsoluteUrls = $this->replaceRelativeUrlsToAbsolute($text, $baseUrl);
         $urls = $this->getFileUrls($textWithAbsoluteUrls);
         $files = $this->download($urls);
-        foreach ($urls as $url) {
-            $convertedFile = $this->convertFileToBase64($files[$url]);
-            $textWithAbsoluteUrls = str_replace($url, $convertedFile, $textWithAbsoluteUrls);
+        foreach ($files as $file) {
+            $convertedFile = $this->convertFileToBase64($file->getBody(), $file->getParams()['content_type']);
+            $textWithAbsoluteUrls = str_replace($file->getParams()['url'], $convertedFile, $textWithAbsoluteUrls);
         }
         return $textWithAbsoluteUrls;
     }
 
-    public function convertFileToBase64($data)
+    public function convertFileToBase64($data, $mimetype = null)
     {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->buffer($data);
+        $mime = is_null($mimetype) ? $finfo->buffer($data) : $mimetype;
         $base64 = 'data:' . $mime . ';base64,' . base64_encode($data);
         return $base64;
     }
@@ -145,16 +145,12 @@ class Proxy
     private function download($urls)
     {
         $client = new Client();
-        $clearResults = [];
         try {
             $results = $client->get($urls);
             if (!is_array($urls)) {
                 return $results;
             }
-            foreach ($results as $result) {
-                $clearResults[$result->getInfo()['url']] = $result->getBody();
-            }
-            return $clearResults;
+            return $results;
         } catch (\Exception $e) {
             throw new DownloadException();
         }
