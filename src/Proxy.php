@@ -21,7 +21,7 @@ class Proxy
 
         $filename = md5($url) . '.html';
         if (is_file($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename)) {
-            return $filename;
+            return file_get_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename);
         }
 
         $html = $this->downloadHTML($url);
@@ -32,7 +32,7 @@ class Proxy
 
         $this->save($html, $filename);
 
-        return $filename;
+        return file_get_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename);
     }
 
     public function downloadHTML($url)
@@ -86,6 +86,18 @@ class Proxy
             $link->setAttribute('href', '#');
         }
         $html = $xml->saveHTML();
+        return $html;
+    }
+
+    public function insertJS($html, $src)
+    {
+        $dom = new DOMDocument;
+        @$dom->loadHTML($html);
+        $body = $dom->getElementsByTagName('body')->item(0);
+        $node = $dom->createElement("script");
+        $node->setAttribute("src", $src);
+        $body->appendChild($node);
+        $html = $dom->saveHTML();
         return $html;
     }
 
@@ -202,6 +214,7 @@ class Proxy
         }
         $this->downloadDirectory = $dir;
     }
+
     public function getCleaningPeriod()
     {
         return $this->cleaningPeriod;

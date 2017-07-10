@@ -21,7 +21,8 @@ class ProxyTest extends TestCase
         $fs = new FileSystem();
         $proxy = new Proxy();
         $proxy->setDownloadDirectory($fs->path('/'));
-        $proxy->proxifySite($url);
+        $this->assertFileNotExists($fs->path('/' . md5($url) . '.html'));
+        $this->assertContains('html', $proxy->proxifySite($url));
         $this->assertFileExists($fs->path('/' . md5($url) . '.html'));
     }
 
@@ -30,6 +31,13 @@ class ProxyTest extends TestCase
         $htmlWithLinks = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'withLinks.html']));
         $htmlBlockLinks = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'blockLinks.html']));
         $this->assertEquals($htmlBlockLinks, $this->proxy->blockLinks($htmlWithLinks));
+    }
+
+    public function testInsertJS()
+    {
+        $html = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'withLinks.html']));
+        $htmlWithInsertedJS = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'insertedJS.html']));
+        $this->assertEquals($htmlWithInsertedJS, $this->proxy->insertJS($html, 'test.js'));
     }
 
     public function testConvertFileToBase64()
