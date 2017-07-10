@@ -4,7 +4,7 @@ namespace Proxy;
 
 use DOMDocument;
 
-class HTML
+class HTMLModifier
 {
     private $html;
 
