@@ -19,20 +19,20 @@ class Proxy
     {
         $this->clean();
 
-        $filename = md5($url) . '.html';
-        if (is_file($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename)) {
-            return file_get_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename);
+        $filename = $this->downloadDirectory . DIRECTORY_SEPARATOR . md5($url) . '.html';
+        if (is_file($filename)) {
+            return file_get_contents($filename);
         }
 
         $html = $this->downloadHTML($url);
-        $html = $this->insertCSSInHtml($html, $url);
+        $html = $this->insertCSSIntoHtml($html, $url);
         $html = $this->convertFiles($html, $url);
         $html = $this->blockLinks($html);
         $html = $this->replaceJSRelativeUrls($html, $url);
 
         $this->save($html, $filename);
 
-        return file_get_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename);
+        return file_get_contents($filename);
     }
 
     public function downloadHTML($url)
@@ -41,7 +41,7 @@ class Proxy
         return $html;
     }
 
-    public function insertCSSInHtml($html, $baseUrl)
+    public function insertCSSIntoHtml($html, $baseUrl)
     {
         $xml = new DOMDocument;
         @$xml->loadHTML($html);
@@ -169,7 +169,7 @@ class Proxy
         if (!is_dir($this->downloadDirectory)) {
             throw new DirectoryNotFoundException();
         }
-        file_put_contents($this->downloadDirectory . DIRECTORY_SEPARATOR . $filename, $html);
+        file_put_contents($filename, $html);
     }
 
     private function download($urls)
