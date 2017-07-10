@@ -10,6 +10,7 @@ $html = $proxy->proxifySite($url);
 $htmlChanger = new \Proxy\HTMLModifier($html);
 $modifiedHTML = $htmlChanger
     ->blockLinks()
+    ->deleteBaseTag()
     ->html();
 
 echo $modifiedHTML;

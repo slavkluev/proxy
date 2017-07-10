@@ -15,8 +15,7 @@ class HTMLModifier
 
     public function blockLinks()
     {
-        $dom = new DOMDocument;
-        @$dom->loadHTML($this->html);
+        $dom = $this->getDocument();
         foreach ($dom->getElementsByTagName('a') as $link) {
             $link->setAttribute('href', '#');
         }
@@ -26,8 +25,7 @@ class HTMLModifier
 
     public function insertJS($src)
     {
-        $dom = new DOMDocument;
-        @$dom->loadHTML($this->html);
+        $dom = $this->getDocument();
         $body = $dom->getElementsByTagName('body')->item(0);
         $node = $dom->createElement("script");
         $node->setAttribute("src", $src);
@@ -36,8 +34,24 @@ class HTMLModifier
         return $this;
     }
 
+    public function deleteBaseTag()
+    {
+        $dom = $this->getDocument();
+        $base = $dom->getElementsByTagName('base')->item(0);
+        $base->parentNode->removeChild($base);
+        $this->html = $dom->saveHTML();
+        return $this;
+    }
+
     public function html()
     {
         return $this->html;
+    }
+
+    private function getDocument()
+    {
+        $dom = new DOMDocument;
+        @$dom->loadHTML($this->html);
+        return $dom;
     }
 }
