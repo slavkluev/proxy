@@ -10,7 +10,6 @@ $html = $proxy->proxifySite($url);
 $htmlChanger = new \Proxy\HTMLModifier($html);
 $modifiedHTML = $htmlChanger
     ->blockLinks()
-    ->insertJS('test.js')
     ->html();
 
 echo $modifiedHTML;
