@@ -46,6 +46,33 @@ class HTMLModifier
         return $this;
     }
 
+    public function setBlackList($keys)
+    {
+        $dom = $this->getDocument();
+        $tags = $dom->getElementsByTagName('*');
+        $nodesToRemove = [];
+        foreach ($tags as $tag) {
+            if ($tag->hasAttributes()) {
+                foreach ($tag->attributes as $attribute) {
+                    $occurrences = array_map(function ($key) use ($attribute) {
+                        return strrpos($attribute->value, $key);
+                    }, $keys);
+                    $isRemoved = array_reduce($occurrences, function ($carry, $occurrence) {
+                        return $occurrence !== false or $carry;
+                    }, false);
+                    if ($isRemoved) {
+                        $nodesToRemove[] = $tag;
+                    }
+                }
+            }
+        }
+        foreach ($nodesToRemove as $domElement) {
+            $domElement->parentNode->removeChild($domElement);
+        }
+        $this->html = $dom->saveHTML();
+        return $this;
+    }
+
     public function html()
     {
         return $this->html;

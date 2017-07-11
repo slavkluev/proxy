@@ -29,4 +29,11 @@ class HTMLModifierTest extends TestCase
         $htmlModifier = new HTMLModifier($htmlWithBase);
         $this->assertNotContains('base', $htmlModifier->deleteBaseTag()->html());
     }
+
+    public function testBlackList()
+    {
+        $htmlWithBase = '<html><head><link href="test1"><base href="http://test.com"></head><body></body></html>';
+        $htmlModifier = new HTMLModifier($htmlWithBase);
+        $this->assertNotContains('test1', $htmlModifier->setBlackList(['test1'])->html());
+    }
 }
