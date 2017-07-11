@@ -34,7 +34,7 @@ class Proxy
         return file_get_contents($filename);
     }
 
-    public function insertCSSIntoHtml($html, $baseUrl)
+    public function insertCSSIntoHtml($html, $baseUrl = '')
     {
         $xml = new DOMDocument;
         @$xml->loadHTML($html);
@@ -71,7 +71,7 @@ class Proxy
         return $html;
     }
 
-    public function convertFiles($text, $baseUrl)
+    public function convertFiles($text, $baseUrl = '')
     {
         $textWithAbsoluteUrls = $this->replaceRelativeUrlsToAbsolute($text, $baseUrl);
         $urls = $this->getFileUrls($textWithAbsoluteUrls);
