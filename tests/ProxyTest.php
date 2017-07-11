@@ -18,12 +18,20 @@ class ProxyTest extends TestCase
 
     public function testProxifySite()
     {
-        $url = 'https://www.google.ru';
+        $url = 'http://example.com';
         $fs = new FileSystem();
         $this->proxy->setDownloadDirectory($fs->path('/'));
         $this->assertFileNotExists($fs->path('/' . md5($url) . '.html'));
         $this->assertContains('html', $this->proxy->proxifySite($url));
         $this->assertFileExists($fs->path('/' . md5($url) . '.html'));
+    }
+
+    public function testInsertEmptyCSSIntoHtml()
+    {
+        $htmlWithSeparateCSS = '<html><head><link rel="stylesheet" href=""></head></html>';
+        $htmlInsertedCSS = $this->proxy->insertCSSIntoHtml($htmlWithSeparateCSS);
+        $this->assertContains('text/css', $htmlInsertedCSS);
+        $this->assertNotContains('stylesheet', $htmlInsertedCSS);
     }
 
     public function testReplaceJSRelativeUrls()
