@@ -147,9 +147,6 @@ class Proxy
         $client = new Client();
         try {
             $results = $client->get($urls);
-            if (!is_array($urls)) {
-                return $results;
-            }
             return $results;
         } catch (\Exception $e) {
             throw new DownloadException();

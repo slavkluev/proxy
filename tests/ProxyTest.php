@@ -18,7 +18,7 @@ class ProxyTest extends TestCase
 
     public function testProxifySite()
     {
-        $url = 'https://google.com';
+        $url = 'https://www.google.ru';
         $fs = new FileSystem();
         $this->proxy->setDownloadDirectory($fs->path('/'));
         $this->assertFileNotExists($fs->path('/' . md5($url) . '.html'));
