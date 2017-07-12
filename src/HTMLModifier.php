@@ -48,22 +48,25 @@ class HTMLModifier
 
     public function setBlackList($keys)
     {
+        $isRemoved = function ($tag) use ($keys) {
+            if ($tag->hasAttributes()) {
+                foreach ($tag->attributes as $attribute) {
+                    foreach ($keys as $key) {
+                        if (strrpos($attribute->value, $key) !== false) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        };
+
         $dom = $this->getDocument();
         $tags = $dom->getElementsByTagName('*');
         $nodesToRemove = [];
         foreach ($tags as $tag) {
-            if ($tag->hasAttributes()) {
-                foreach ($tag->attributes as $attribute) {
-                    $occurrences = array_map(function ($key) use ($attribute) {
-                        return strrpos($attribute->value, $key);
-                    }, $keys);
-                    $isRemoved = array_reduce($occurrences, function ($carry, $occurrence) {
-                        return $occurrence !== false or $carry;
-                    }, false);
-                    if ($isRemoved) {
-                        $nodesToRemove[] = $tag;
-                    }
-                }
+            if ($isRemoved($tag)) {
+                $nodesToRemove[] = $tag;
             }
         }
         foreach ($nodesToRemove as $domElement) {

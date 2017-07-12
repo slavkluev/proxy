@@ -32,8 +32,13 @@ class HTMLModifierTest extends TestCase
 
     public function testBlackList()
     {
-        $htmlWithBase = '<html><head><link href="test1"><base href="http://test.com"></head><body></body></html>';
-        $htmlModifier = new HTMLModifier($htmlWithBase);
-        $this->assertNotContains('test1', $htmlModifier->setBlackList(['test1'])->html());
+        $htmlWithUnwantedArgument = '<html><head><link href="test1"><base href="http://test2.com"></head><body></body></html>';
+        $htmlModifier = new HTMLModifier($htmlWithUnwantedArgument);
+        $this->assertNotContains('link', $htmlModifier->setBlackList(['test1'])->html());
+
+        $htmlWithUnwantedArguments = '<html><head><link id="test1" href="test1"><base href="http://test2.com"></head><body></body></html>';
+        $htmlModifier = new HTMLModifier($htmlWithUnwantedArguments);
+        $this->assertNotContains('link', $htmlModifier->setBlackList(['test1', 'test2'])->html());
+        $this->assertNotContains('base', $htmlModifier->setBlackList(['test1', 'test2'])->html());
     }
 }
