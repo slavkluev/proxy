@@ -6,20 +6,19 @@ use DOMDocument;
 
 class HTMLModifier
 {
-    private $html;
+    private $dom;
 
     public function __construct($html)
     {
-        $this->html = $html;
+        $this->dom = new DOMDocument;
+        @$this->dom->loadHTML($html);
     }
 
     public function blockLinks()
     {
-        $dom = $this->getDocument();
-        foreach ($dom->getElementsByTagName('a') as $link) {
+        foreach ($this->dom->getElementsByTagName('a') as $link) {
             $link->setAttribute('href', '#');
         }
-        $this->html = $dom->saveHTML();
         return $this;
     }
 
@@ -28,30 +27,26 @@ class HTMLModifier
         if (!is_array($sources)) {
             $sources = [$sources];
         }
-        $dom = $this->getDocument();
-        $body = $dom->getElementsByTagName('body')->item(0);
+        $body = $this->dom->getElementsByTagName('body')->item(0);
         foreach ($sources as $source) {
-            $node = $dom->createElement("script");
+            $node = $this->dom->createElement("script");
             $node->setAttribute("src", $source);
             $body->appendChild($node);
         }
-        $this->html = $dom->saveHTML();
         return $this;
     }
 
     public function deleteBaseTag()
     {
-        $dom = $this->getDocument();
-        $bases = $dom->getElementsByTagName('base');
+        $bases = $this->dom->getElementsByTagName('base');
         if ($bases->length > 0) {
             $base = $bases->item(0);
             $base->parentNode->removeChild($base);
         }
-        $this->html = $dom->saveHTML();
         return $this;
     }
 
-    public function setBlackList($keys)
+    public function setBlacklist($keys)
     {
         $isRemoved = function ($tag) use ($keys) {
             if ($tag->hasAttributes()) {
@@ -66,8 +61,7 @@ class HTMLModifier
             return false;
         };
 
-        $dom = $this->getDocument();
-        $tags = $dom->getElementsByTagName('*');
+        $tags = $this->dom->getElementsByTagName('*');
         $nodesToRemove = [];
         foreach ($tags as $tag) {
             if ($isRemoved($tag)) {
@@ -77,19 +71,11 @@ class HTMLModifier
         foreach ($nodesToRemove as $domElement) {
             $domElement->parentNode->removeChild($domElement);
         }
-        $this->html = $dom->saveHTML();
         return $this;
     }
 
-    public function html()
+    public function saveHtml()
     {
-        return $this->html;
-    }
-
-    private function getDocument()
-    {
-        $dom = new DOMDocument;
-        @$dom->loadHTML($this->html);
-        return $dom;
+        return $this->dom->saveHTML();
     }
 }
