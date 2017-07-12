@@ -17,10 +17,16 @@ class HTMLModifierTest extends TestCase
 
     public function testInsertJS()
     {
-        $htmlWithoutJS = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'withLinks.html']));
+        $htmlWithoutJS = '<html><body></body></html>';
         $htmlModifier = new HTMLModifier($htmlWithoutJS);
-        $htmlWithInsertedJS = file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'insertedJS.html']));
-        $this->assertEquals($htmlWithInsertedJS, $htmlModifier->insertJS('test.js')->html());
+        $htmlWithOneJS = $htmlModifier->insertJS('test.js')->html();
+        $this->assertContains('<script src="test.js"></script>', $htmlWithOneJS);
+
+        $htmlWithoutJS = '<html><body></body></html>';
+        $htmlModifier = new HTMLModifier($htmlWithoutJS);
+        $htmlWithTwoJS = $htmlModifier->insertJS(['test1.js', 'test2.js'])->html();
+        $this->assertContains('<script src="test1.js"></script>', $htmlWithTwoJS);
+        $this->assertContains('<script src="test2.js"></script>', $htmlWithTwoJS);
     }
 
     public function testDeleteBaseTag()
@@ -32,13 +38,17 @@ class HTMLModifierTest extends TestCase
 
     public function testBlackList()
     {
-        $htmlWithUnwantedArgument = '<html><head><link href="test1"><base href="http://test2.com"></head><body></body></html>';
+        $htmlWithUnwantedArgument = '<html><head><link href="test1"><base href="http://test2.com"></head></html>';
         $htmlModifier = new HTMLModifier($htmlWithUnwantedArgument);
-        $this->assertNotContains('link', $htmlModifier->setBlackList(['test1'])->html());
+        $blacklist = ['test1'];
+        $htmlWithDeletedTags = $htmlModifier->setBlackList($blacklist)->html();
+        $this->assertNotContains('link', $htmlWithDeletedTags);
 
-        $htmlWithUnwantedArguments = '<html><head><link id="test1" href="test1"><base href="http://test2.com"></head><body></body></html>';
+        $htmlWithUnwantedArguments = '<html><head><link id="test1" href="test1"><base href="test2"></head></html>';
         $htmlModifier = new HTMLModifier($htmlWithUnwantedArguments);
-        $this->assertNotContains('link', $htmlModifier->setBlackList(['test1', 'test2'])->html());
-        $this->assertNotContains('base', $htmlModifier->setBlackList(['test1', 'test2'])->html());
+        $blacklist = ['test1', 'test2'];
+        $htmlWithDeletedTags = $htmlModifier->setBlackList($blacklist)->html();
+        $this->assertNotContains('link', $htmlWithDeletedTags);
+        $this->assertNotContains('base', $htmlWithDeletedTags);
     }
 }

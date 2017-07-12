@@ -23,13 +23,18 @@ class HTMLModifier
         return $this;
     }
 
-    public function insertJS($src)
+    public function insertJS($sources)
     {
+        if (!is_array($sources)) {
+            $sources = [$sources];
+        }
         $dom = $this->getDocument();
         $body = $dom->getElementsByTagName('body')->item(0);
-        $node = $dom->createElement("script");
-        $node->setAttribute("src", $src);
-        $body->appendChild($node);
+        foreach ($sources as $source) {
+            $node = $dom->createElement("script");
+            $node->setAttribute("src", $source);
+            $body->appendChild($node);
+        }
         $this->html = $dom->saveHTML();
         return $this;
     }
